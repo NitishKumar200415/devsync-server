@@ -1,11 +1,9 @@
 package com.devsync.devsync_server.github.controller;
 
 import com.devsync.devsync_server.github.entity.GitHubEvent;
-import com.devsync.devsync_server.github.repository.GitHubEventRepository;
+import com.devsync.devsync_server.github.service.GitHubEventService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,11 +12,26 @@ import java.util.List;
 @RequestMapping("/api/github/events")
 public class GitHubEventController {
 
-    private final GitHubEventRepository gitHubEventRepository;
+    private final GitHubEventService gitHubEventService;
 
     @GetMapping
     public List<GitHubEvent> getAllEvents() {
 
-        return gitHubEventRepository.findAll();
+        return gitHubEventService.getAllEvents();
+    }
+
+    @GetMapping("/recent")
+    public List<GitHubEvent> getRecentEvents() {
+
+        return gitHubEventService.getRecentEvents();
+    }
+
+    @GetMapping("/type/{type}")
+    public List<GitHubEvent> getEventsByType(
+            @PathVariable String type
+    ) {
+
+        return gitHubEventService
+                .getEventsByType(type);
     }
 }
