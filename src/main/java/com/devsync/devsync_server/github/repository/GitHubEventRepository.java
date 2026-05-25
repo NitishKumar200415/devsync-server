@@ -17,4 +17,14 @@ public interface GitHubEventRepository
     findByEventTypeOrderByCreatedAtDesc(
             String eventType
     );
+
+    List<GitHubEvent>
+    findByEventTypeAndActor(
+            String eventType,
+            String actor
+    );
+    List<GitHubEvent>
+    findByActor(
+            String actor
+    );
 }

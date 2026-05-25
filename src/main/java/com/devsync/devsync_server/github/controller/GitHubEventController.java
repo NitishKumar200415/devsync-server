@@ -34,4 +34,26 @@ public class GitHubEventController {
         return gitHubEventService
                 .getEventsByType(type);
     }
+    @GetMapping("/paged")
+    public List<GitHubEvent> getPaginatedEvents(
+            @RequestParam int page,
+            @RequestParam int size
+    ) {
+
+        return gitHubEventService
+                .getPaginatedEvents(page, size);
+    }
+    @GetMapping("/search")
+    public List<GitHubEvent> searchEvents(
+
+            @RequestParam(required = false)
+            String type,
+
+            @RequestParam(required = false)
+            String actor
+    ) {
+
+        return gitHubEventService
+                .searchEvents(type, actor);
+    }
 }
