@@ -2,14 +2,26 @@ package com.devsync.devsync_server.github.controller;
 
 import com.devsync.devsync_server.github.entity.GitHubEvent;
 import com.devsync.devsync_server.github.service.GitHubEventService;
+
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Pattern;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+
+import org.springframework.validation.annotation.Validated;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/github/events")
+@Validated
 public class GitHubEventController {
 
     private final GitHubEventService gitHubEventService;
@@ -34,15 +46,26 @@ public class GitHubEventController {
         return gitHubEventService
                 .getEventsByType(type);
     }
+
     @GetMapping("/paged")
     public List<GitHubEvent> getPaginatedEvents(
-            @RequestParam int page,
-            @RequestParam int size
+
+            @RequestParam
+            @Min(0)
+            int page,
+
+            @RequestParam
+            @Min(1)
+            int size
     ) {
 
         return gitHubEventService
-                .getPaginatedEvents(page, size);
+                .getPaginatedEvents(
+                        page,
+                        size
+                );
     }
+
     @GetMapping("/search")
     public List<GitHubEvent> searchEvents(
 
@@ -54,6 +77,40 @@ public class GitHubEventController {
     ) {
 
         return gitHubEventService
-                .searchEvents(type, actor);
+                .searchEvents(
+                        type,
+                        actor
+                );
+    }
+
+    @GetMapping("/search/paged")
+    public List<GitHubEvent> searchEventsPaged(
+
+            @RequestParam(required = false)
+            String type,
+
+            @RequestParam
+            @Min(0)
+            int page,
+
+            @RequestParam
+            @Min(1)
+            int size,
+
+            @RequestParam(defaultValue = "desc")
+            @Pattern(
+                    regexp = "asc|desc",
+                    message = "Direction must be asc or desc"
+            )
+            String direction
+    ) {
+
+        return gitHubEventService
+                .searchEventsPaged(
+                        type,
+                        page,
+                        size,
+                        direction
+                );
     }
 }

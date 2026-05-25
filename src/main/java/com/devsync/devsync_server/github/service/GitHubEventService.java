@@ -2,9 +2,13 @@ package com.devsync.devsync_server.github.service;
 
 import com.devsync.devsync_server.github.entity.GitHubEvent;
 import com.devsync.devsync_server.github.repository.GitHubEventRepository;
+
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,5 +82,35 @@ public class GitHubEventService {
         }
 
         return gitHubEventRepository.findAll();
+    }
+
+    public List<GitHubEvent> searchEventsPaged(
+            String type,
+            int page,
+            int size,
+            String direction
+    ) {
+
+        Sort sort =
+                direction.equalsIgnoreCase("desc")
+                        ? Sort.by("createdAt").descending()
+                        : Sort.by("createdAt").ascending();
+
+        Pageable pageable =
+                PageRequest.of(page, size, sort);
+
+        if (type != null) {
+
+            return gitHubEventRepository
+                    .findByEventType(
+                            type,
+                            pageable
+                    )
+                    .getContent();
+        }
+
+        return gitHubEventRepository
+                .findAll(pageable)
+                .getContent();
     }
 }
