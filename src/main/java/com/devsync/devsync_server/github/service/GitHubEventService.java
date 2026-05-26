@@ -1,5 +1,6 @@
 package com.devsync.devsync_server.github.service;
 
+import com.devsync.devsync_server.github.dto.GitHubEventResponseDTO;
 import com.devsync.devsync_server.github.entity.GitHubEvent;
 import com.devsync.devsync_server.github.repository.GitHubEventRepository;
 
@@ -19,28 +20,38 @@ public class GitHubEventService {
 
     private final GitHubEventRepository gitHubEventRepository;
 
-    public List<GitHubEvent> getAllEvents() {
-
-        return gitHubEventRepository.findAll();
-    }
-
-    public List<GitHubEvent> getRecentEvents() {
+    public List<GitHubEventResponseDTO> getAllEvents() {
 
         return gitHubEventRepository
-                .findTop20ByOrderByCreatedAtDesc();
+                .findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
-    public List<GitHubEvent> getEventsByType(
+    public List<GitHubEventResponseDTO> getRecentEvents() {
+
+        return gitHubEventRepository
+                .findTop20ByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    public List<GitHubEventResponseDTO> getEventsByType(
             String eventType
     ) {
 
         return gitHubEventRepository
                 .findByEventTypeOrderByCreatedAtDesc(
                         eventType
-                );
+                )
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
-    public List<GitHubEvent> getPaginatedEvents(
+    public List<GitHubEventResponseDTO> getPaginatedEvents(
             int page,
             int size
     ) {
@@ -50,10 +61,13 @@ public class GitHubEventService {
 
         return gitHubEventRepository
                 .findAll(pageable)
-                .getContent();
+                .getContent()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
-    public List<GitHubEvent> searchEvents(
+    public List<GitHubEventResponseDTO> searchEvents(
             String type,
             String actor
     ) {
@@ -64,7 +78,10 @@ public class GitHubEventService {
                     .findByEventTypeAndActor(
                             type,
                             actor
-                    );
+                    )
+                    .stream()
+                    .map(this::mapToDTO)
+                    .toList();
         }
 
         if (type != null) {
@@ -72,19 +89,29 @@ public class GitHubEventService {
             return gitHubEventRepository
                     .findByEventTypeOrderByCreatedAtDesc(
                             type
-                    );
+                    )
+                    .stream()
+                    .map(this::mapToDTO)
+                    .toList();
         }
 
         if (actor != null) {
 
             return gitHubEventRepository
-                    .findByActor(actor);
+                    .findByActor(actor)
+                    .stream()
+                    .map(this::mapToDTO)
+                    .toList();
         }
 
-        return gitHubEventRepository.findAll();
+        return gitHubEventRepository
+                .findAll()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
     }
 
-    public List<GitHubEvent> searchEventsPaged(
+    public List<GitHubEventResponseDTO> searchEventsPaged(
             String type,
             int page,
             int size,
@@ -106,11 +133,31 @@ public class GitHubEventService {
                             type,
                             pageable
                     )
-                    .getContent();
+                    .getContent()
+                    .stream()
+                    .map(this::mapToDTO)
+                    .toList();
         }
 
         return gitHubEventRepository
                 .findAll(pageable)
-                .getContent();
+                .getContent()
+                .stream()
+                .map(this::mapToDTO)
+                .toList();
+    }
+
+    private GitHubEventResponseDTO mapToDTO(
+            GitHubEvent event
+    ) {
+
+        return new GitHubEventResponseDTO(
+                event.getId(),
+                event.getEventType(),
+                event.getRepositoryName(),
+                event.getActor(),
+                event.getBranchName(),
+                event.getCreatedAt()
+        );
     }
 }

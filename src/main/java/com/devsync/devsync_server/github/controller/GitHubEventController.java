@@ -1,6 +1,6 @@
 package com.devsync.devsync_server.github.controller;
 
-import com.devsync.devsync_server.github.entity.GitHubEvent;
+import com.devsync.devsync_server.github.dto.GitHubEventResponseDTO;
 import com.devsync.devsync_server.github.service.GitHubEventService;
 
 import jakarta.validation.constraints.Min;
@@ -27,19 +27,19 @@ public class GitHubEventController {
     private final GitHubEventService gitHubEventService;
 
     @GetMapping
-    public List<GitHubEvent> getAllEvents() {
+    public List<GitHubEventResponseDTO> getAllEvents() {
 
         return gitHubEventService.getAllEvents();
     }
 
     @GetMapping("/recent")
-    public List<GitHubEvent> getRecentEvents() {
+    public List<GitHubEventResponseDTO> getRecentEvents() {
 
         return gitHubEventService.getRecentEvents();
     }
 
     @GetMapping("/type/{type}")
-    public List<GitHubEvent> getEventsByType(
+    public List<GitHubEventResponseDTO> getEventsByType(
             @PathVariable String type
     ) {
 
@@ -48,7 +48,7 @@ public class GitHubEventController {
     }
 
     @GetMapping("/paged")
-    public List<GitHubEvent> getPaginatedEvents(
+    public List<GitHubEventResponseDTO> getPaginatedEvents(
 
             @RequestParam
             @Min(0)
@@ -67,7 +67,7 @@ public class GitHubEventController {
     }
 
     @GetMapping("/search")
-    public List<GitHubEvent> searchEvents(
+    public List<GitHubEventResponseDTO> searchEvents(
 
             @RequestParam(required = false)
             String type,
@@ -84,7 +84,7 @@ public class GitHubEventController {
     }
 
     @GetMapping("/search/paged")
-    public List<GitHubEvent> searchEventsPaged(
+    public List<GitHubEventResponseDTO> searchEventsPaged(
 
             @RequestParam(required = false)
             String type,
