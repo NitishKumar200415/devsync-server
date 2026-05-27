@@ -73,13 +73,17 @@ public class GitHubEventController {
             String type,
 
             @RequestParam(required = false)
-            String actor
+            String actor,
+
+            @RequestParam(required = false)
+            String repository
     ) {
 
         return gitHubEventService
                 .searchEvents(
                         type,
-                        actor
+                        actor,
+                        repository
                 );
     }
 

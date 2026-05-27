@@ -1,16 +1,18 @@
 package com.devsync.devsync_server.github.repository;
 
 import com.devsync.devsync_server.github.entity.GitHubEvent;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-@Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.util.List;
+
 public interface GitHubEventRepository
-        extends JpaRepository<GitHubEvent, Long> {
+        extends JpaRepository<GitHubEvent, Long>,
+        JpaSpecificationExecutor<GitHubEvent> {
 
     List<GitHubEvent>
     findTop20ByOrderByCreatedAtDesc();
@@ -25,13 +27,15 @@ public interface GitHubEventRepository
             String eventType,
             String actor
     );
+
     List<GitHubEvent>
     findByActor(
             String actor
     );
+
     Page<GitHubEvent>
     findByEventType(
-            String eventType,
+            String type,
             Pageable pageable
     );
 }

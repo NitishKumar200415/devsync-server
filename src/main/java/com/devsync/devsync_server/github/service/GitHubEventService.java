@@ -1,5 +1,7 @@
 package com.devsync.devsync_server.github.service;
 
+import com.devsync.devsync_server.github.specification.GitHubEventSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import com.devsync.devsync_server.github.dto.GitHubEventResponseDTO;
 import com.devsync.devsync_server.github.entity.GitHubEvent;
 import com.devsync.devsync_server.github.repository.GitHubEventRepository;
@@ -69,43 +71,28 @@ public class GitHubEventService {
 
     public List<GitHubEventResponseDTO> searchEvents(
             String type,
-            String actor
+            String actor,
+            String repository
     ) {
 
-        if (type != null && actor != null) {
+        Specification<GitHubEvent> specification =
 
-            return gitHubEventRepository
-                    .findByEventTypeAndActor(
-                            type,
-                            actor
-                    )
-                    .stream()
-                    .map(this::mapToDTO)
-                    .toList();
-        }
-
-        if (type != null) {
-
-            return gitHubEventRepository
-                    .findByEventTypeOrderByCreatedAtDesc(
-                            type
-                    )
-                    .stream()
-                    .map(this::mapToDTO)
-                    .toList();
-        }
-
-        if (actor != null) {
-
-            return gitHubEventRepository
-                    .findByActor(actor)
-                    .stream()
-                    .map(this::mapToDTO)
-                    .toList();
-        }
+                Specification
+                        .where(
+                                GitHubEventSpecification
+                                        .hasType(type)
+                        )
+                        .and(
+                                GitHubEventSpecification
+                                        .hasActor(actor)
+                        )
+                        .and(
+                                GitHubEventSpecification
+                                        .hasRepository(repository)
+                        );
 
         return gitHubEventRepository
-                .findAll()
+                .findAll(specification)
                 .stream()
                 .map(this::mapToDTO)
                 .toList();
