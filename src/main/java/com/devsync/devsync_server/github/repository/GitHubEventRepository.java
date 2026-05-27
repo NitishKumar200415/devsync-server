@@ -38,4 +38,8 @@ public interface GitHubEventRepository
             String type,
             Pageable pageable
     );
+
+    long countByEventType(
+            String eventType
+    );
 }
