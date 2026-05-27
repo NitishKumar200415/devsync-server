@@ -1,12 +1,16 @@
 package com.devsync.devsync_server.github.service;
 
 import com.devsync.devsync_server.github.dto.GitHubEventDTO;
+import com.devsync.devsync_server.github.dto.GitHubEventResponseDTO;
 import com.devsync.devsync_server.github.dto.IssueEventDTO;
 import com.devsync.devsync_server.github.dto.PullRequestEventDTO;
 import com.devsync.devsync_server.github.entity.GitHubEvent;
 import com.devsync.devsync_server.github.repository.GitHubEventRepository;
+import com.devsync.devsync_server.github.websocket.GitHubEventBroadcaster;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +23,15 @@ import java.util.Map;
 public class GitHubWebhookService {
 
     private final SimpMessagingTemplate messagingTemplate;
+
     private final GitHubEventRepository gitHubEventRepository;
 
-    public void processEvent(String eventType,
-                             Map<String, Object> payload) {
+    private final GitHubEventBroadcaster gitHubEventBroadcaster;
+
+    public void processEvent(
+            String eventType,
+            Map<String, Object> payload
+    ) {
 
         switch (eventType) {
 
@@ -39,7 +48,10 @@ public class GitHubWebhookService {
                 break;
 
             default:
-                log.info("Unhandled Event: {}", eventType);
+                log.info(
+                        "Unhandled Event: {}",
+                        eventType
+                );
         }
     }
 
@@ -94,13 +106,52 @@ public class GitHubWebhookService {
 
         gitHubEventRepository.save(githubEvent);
 
-        log.info("======= PULL REQUEST EVENT =======");
-        log.info("Action: {}", action);
-        log.info("Repository: {}", repoName);
-        log.info("PR Title: {}", prTitle);
-        log.info("Author: {}", author);
-        log.info("Target Branch: {}", targetBranch);
-        log.info("==================================");
+        GitHubEventResponseDTO responseDTO =
+                new GitHubEventResponseDTO(
+                        githubEvent.getId(),
+                        githubEvent.getEventType(),
+                        githubEvent.getRepositoryName(),
+                        githubEvent.getActor(),
+                        githubEvent.getBranchName(),
+                        githubEvent.getCreatedAt()
+                );
+
+        gitHubEventBroadcaster.broadcastEvent(
+                responseDTO
+        );
+
+        log.info(
+                "======= PULL REQUEST EVENT ======="
+        );
+
+        log.info(
+                "Action: {}",
+                action
+        );
+
+        log.info(
+                "Repository: {}",
+                repoName
+        );
+
+        log.info(
+                "PR Title: {}",
+                prTitle
+        );
+
+        log.info(
+                "Author: {}",
+                author
+        );
+
+        log.info(
+                "Target Branch: {}",
+                targetBranch
+        );
+
+        log.info(
+                "=================================="
+        );
 
         messagingTemplate.convertAndSend(
                 "/topic/github/pr",
@@ -131,9 +182,11 @@ public class GitHubWebhookService {
                 ref.replace("refs/heads/", "");
 
         Object[] commits =
-                ((java.util.List<?>) payload.get("commits")).toArray();
+                ((java.util.List<?>) payload.get("commits"))
+                        .toArray();
 
-        int commitCount = commits.length;
+        int commitCount =
+                commits.length;
 
         GitHubEventDTO eventDTO =
                 new GitHubEventDTO(
@@ -155,12 +208,47 @@ public class GitHubWebhookService {
 
         gitHubEventRepository.save(githubEvent);
 
-        log.info("========== PUSH EVENT ==========");
-        log.info("Repository: {}", repoName);
-        log.info("Branch: {}", branch);
-        log.info("Pusher: {}", pusherName);
-        log.info("Commit Count: {}", commitCount);
-        log.info("================================");
+        GitHubEventResponseDTO responseDTO =
+                new GitHubEventResponseDTO(
+                        githubEvent.getId(),
+                        githubEvent.getEventType(),
+                        githubEvent.getRepositoryName(),
+                        githubEvent.getActor(),
+                        githubEvent.getBranchName(),
+                        githubEvent.getCreatedAt()
+                );
+
+        gitHubEventBroadcaster.broadcastEvent(
+                responseDTO
+        );
+
+        log.info(
+                "========== PUSH EVENT =========="
+        );
+
+        log.info(
+                "Repository: {}",
+                repoName
+        );
+
+        log.info(
+                "Branch: {}",
+                branch
+        );
+
+        log.info(
+                "Pusher: {}",
+                pusherName
+        );
+
+        log.info(
+                "Commit Count: {}",
+                commitCount
+        );
+
+        log.info(
+                "================================"
+        );
 
         messagingTemplate.convertAndSend(
                 "/topic/github",
@@ -216,13 +304,52 @@ public class GitHubWebhookService {
 
         gitHubEventRepository.save(githubEvent);
 
-        log.info("========== ISSUE EVENT ==========");
-        log.info("Action: {}", action);
-        log.info("Repository: {}", repoName);
-        log.info("Issue Title: {}", issueTitle);
-        log.info("Creator: {}", creator);
-        log.info("State: {}", state);
-        log.info("=================================");
+        GitHubEventResponseDTO responseDTO =
+                new GitHubEventResponseDTO(
+                        githubEvent.getId(),
+                        githubEvent.getEventType(),
+                        githubEvent.getRepositoryName(),
+                        githubEvent.getActor(),
+                        githubEvent.getBranchName(),
+                        githubEvent.getCreatedAt()
+                );
+
+        gitHubEventBroadcaster.broadcastEvent(
+                responseDTO
+        );
+
+        log.info(
+                "========== ISSUE EVENT =========="
+        );
+
+        log.info(
+                "Action: {}",
+                action
+        );
+
+        log.info(
+                "Repository: {}",
+                repoName
+        );
+
+        log.info(
+                "Issue Title: {}",
+                issueTitle
+        );
+
+        log.info(
+                "Creator: {}",
+                creator
+        );
+
+        log.info(
+                "State: {}",
+                state
+        );
+
+        log.info(
+                "================================="
+        );
 
         messagingTemplate.convertAndSend(
                 "/topic/github/issues",
