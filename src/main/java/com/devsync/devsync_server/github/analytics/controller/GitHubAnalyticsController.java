@@ -1,5 +1,7 @@
 package com.devsync.devsync_server.github.analytics.controller;
 
+import java.util.List;
+import com.devsync.devsync_server.github.analytics.dto.ContributorLeaderboardDTO;
 import com.devsync.devsync_server.github.analytics.dto.GitHubAnalyticsStatsDTO;
 import com.devsync.devsync_server.github.analytics.service.GitHubAnalyticsService;
 
@@ -22,5 +24,13 @@ public class GitHubAnalyticsController {
                 gitHubAnalyticsService.getStats();
 
         return ResponseEntity.ok(stats);
+    }
+    @GetMapping("/contributors")
+    public ResponseEntity<List<ContributorLeaderboardDTO>>
+    getContributorLeaderboard() {
+
+        return ResponseEntity.ok(
+                gitHubAnalyticsService.getContributorLeaderboard()
+        );
     }
 }

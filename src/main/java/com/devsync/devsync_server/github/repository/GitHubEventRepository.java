@@ -1,5 +1,7 @@
 package com.devsync.devsync_server.github.repository;
 
+import com.devsync.devsync_server.github.analytics.repository.ContributorStatsProjection;
+import org.springframework.data.jpa.repository.Query;
 import com.devsync.devsync_server.github.entity.GitHubEvent;
 
 import org.springframework.data.domain.Page;
@@ -42,4 +44,13 @@ public interface GitHubEventRepository
     long countByEventType(
             String eventType
     );
+    @Query("""
+       SELECT
+           g.actor AS actor,
+           COUNT(g) AS eventCount
+       FROM GitHubEvent g
+       GROUP BY g.actor
+       ORDER BY COUNT(g) DESC
+       """)
+    List<ContributorStatsProjection> getContributorLeaderboard();
 }
